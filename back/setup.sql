@@ -5,6 +5,7 @@ CREATE TABLE users (
     full_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20),
     is_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255),
     is_banned BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -12,14 +13,6 @@ CREATE TABLE users (
 CREATE TABLE admins (
     admin_id SERIAL PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
-CREATE TABLE user_verifications (
-    verification_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    verification_token VARCHAR(255) UNIQUE NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
