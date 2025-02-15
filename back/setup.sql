@@ -1,61 +1,105 @@
 CREATE TABLE users (
-    username TEXT PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    f_name TEXT NOT NULL,
-    l_name TEXT NOT NULL,
-    phone TEXT,
+    user_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_banned BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE admins (
-    id INTEGER PRIMARY KEY REFERENCES users(username),
-    became_admin_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    admin_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE blocks (
-    username TEXT PRIMARY KEY
+CREATE TABLE user_verifications (
+    verification_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    verification_token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE banned_users (
+    ban_id SERIAL PRIMARY KEY,
+    admin_id INT NOT NULL,
+    user_id INT NOT NULL,
+    reason TEXT,
+    banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES admins(admin_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE trips (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_by TEXT NOT NULL REFERENCES users(username),
-    source TEXT NOT NULL,
-    destination TEXT NOT NULL,
+    trip_id SERIAL PRIMARY KEY,
+    created_by INT NOT NULL,
+    source VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    radius_km INT CHECK (radius_km >= 0),
+    mode_of_transport VARCHAR(50) CHECK (mode_of_transport IN ('Car', 'Uber', 'Lyft', 'Other')),
+    documents JSONB DEFAULT '{}'::JSONB,
     departure_time TIMESTAMP NOT NULL,
-    transportation_type TEXT NOT NULL,
+    max_passengers INT CHECK (max_passengers >= 1),
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status TEXT NOT NULL
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE user_to_trips (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_username TEXT NOT NULL REFERENCES users(username),
-    trip_id INTEGER NOT NULL REFERENCES trips(id),
-    rated BOOLEAN DEFAULT 0,
-    UNIQUE (user_username, trip_id)
+CREATE TABLE trip_members (
+    trip_member_id SERIAL PRIMARY KEY,
+    trip_id INT NOT NULL,
+    user_id INT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE group_chat (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id INTEGER NOT NULL REFERENCES trips(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE chat_messages (
+    message_id SERIAL PRIMARY KEY,
+    trip_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id INTEGER NOT NULL REFERENCES trips(id),
-    sender_username TEXT NOT NULL REFERENCES users(username),
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE user_ratings (
+    rating_id SERIAL PRIMARY KEY,
+    rated_by INT NOT NULL,
+    rated_user INT NOT NULL,
+    trip_id INT NOT NULL,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rated_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (rated_user) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id) ON DELETE CASCADE
 );
 
-CREATE TABLE rating (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rater_username TEXT NOT NULL REFERENCES users(username),
-    rated_username TEXT REFERENCES users(username),
-    trip_id INTEGER NOT NULL REFERENCES trips(id),
-    rating INTEGER CHECK(rating BETWEEN 1 AND 5) NOT NULL,
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE reports (
+    report_id SERIAL PRIMARY KEY,
+    reported_by INT NOT NULL,
+    reported_user INT NOT NULL,
+    trip_id INT,
+    reason TEXT NOT NULL,
+    status VARCHAR(50) CHECK (status IN ('Pending', 'Reviewed', 'Resolved')) DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reported_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_user) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id) ON DELETE CASCADE
+);
+
+CREATE TABLE previous_travelers (
+    travel_id SERIAL PRIMARY KEY,
+    user_1 INT NOT NULL,
+    user_2 INT NOT NULL,
+    trip_id INT NOT NULL,
+    UNIQUE (user_1, user_2, trip_id),
+    FOREIGN KEY (user_1) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_2) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id) ON DELETE CASCADE
 );
