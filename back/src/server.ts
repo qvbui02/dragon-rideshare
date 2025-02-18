@@ -8,12 +8,20 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import { authenticateToken } from "./middlewares/auth.middleware.js";
 import { getDb } from "./db.js";
+import { Server } from "socket.io";
+import chatRoutes from "./routes/chat.routes.js";
+import { initChatServer } from "./websocket/chat.js";
+import http from "http";
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, ".env")});
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+initChatServer(io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
@@ -38,6 +46,8 @@ app.use("/api/auth", authRoutes);
 app.get("/api/protected", authenticateToken, (req, res) => {
     res.json({ message: "You accessed a protected route!", user: (req as any).user });
 });
+
+app.use("/api/chat", chatRoutes);
 
 // Serve frontend index.html
 app.get("*", (req, res) => {
