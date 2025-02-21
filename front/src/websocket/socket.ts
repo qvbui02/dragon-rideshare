@@ -1,15 +1,14 @@
 import { io, Socket } from "socket.io-client";
-import { ChatMessage } from "../types"; // ✅ Import ChatMessage type
+import { ChatMessage } from "../components/Chat.tsx"; 
 
-const SERVER_URL = "http://localhost:3000"; // Change this for production
+const SERVER_URL = "http://localhost:3000";
 
 let socket: Socket | null = null;
 
-export const connectSocket = (token: string) => {
-    if (!socket) {
+export const connectSocket = () => {
+    if (!socket) { 
         socket = io(SERVER_URL, {
-            auth: { token },
-            reconnection: true,
+            reconnection: true, 
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
         });
@@ -18,7 +17,7 @@ export const connectSocket = (token: string) => {
             console.log("Connected to WebSocket server:", socket?.id);
         });
 
-        socket.on("message", (msg: ChatMessage) => { // ✅ Explicitly define msg type
+        socket.on("message", (msg: ChatMessage) => {
             console.log("Message from server:", msg);
         });
 
@@ -34,4 +33,15 @@ export const getSocket = () => {
         throw new Error("Socket not initialized. Call connectSocket() first.");
     }
     return socket;
+};
+
+export const joinChatRoom = (groupId: string) => {
+    const socket = getSocket();
+    socket.emit("joinRoom", groupId);
+};
+
+export const sendMessage = (groupId: string, content: string, username: string, time_created: string) => {
+    const socket = getSocket();
+    console.log("Sending message:", { groupId, content, username, time_created }); // ✅ Debugging log
+    socket.emit("chatMessage", { groupId, content, username, time_created });
 };

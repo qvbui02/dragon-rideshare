@@ -1,60 +1,112 @@
-import React, { useEffect, useState } from "react";
-import { connectSocket } from "../websocket/socket";
-import { joinChatRoom, sendMessage } from "../websocket/chat";
-import { ChatMessage } from "../types"; // Import the message type
+import React, { useEffect, useState, useContext } from "react";
+import { useParams } from "react-router-dom";
+import { connectSocket, joinChatRoom, sendMessage } from "../websocket/socket";
+
+export interface ChatMessage {
+    groupId: string,
+    username: string,
+    content: string,
+    time_created: string
+}
+
+import { Container, TextField, Button, Typography, Paper, Box } from "@mui/material";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Chat: React.FC = () => {
+    const { groupId } = useParams<{ groupId: string }>();
+    const { user } = useContext(AuthContext)
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<string[]>([]);
-    const roomId = "room1"; // Example room
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [socket, setSocket] = useState<any>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token") || "test-token"; // Replace with real auth token
-        const socket = connectSocket(token);
+        console.log(groupId);
+        if (!groupId) return;
 
-        socket.on("message", (msg: ChatMessage) => {  // ✅ Fix: Explicitly define msg type
-            setMessages((prev) => [...prev, msg.text]);
+        const newSocket = connectSocket();
+        setSocket(newSocket);
+
+        joinChatRoom(groupId);
+
+        newSocket.on("message", (msg: ChatMessage) => {
+            setMessages((prev) => [...prev, msg]);
         });
 
-        joinChatRoom(roomId);
-
         return () => {
-            socket.disconnect();
+            newSocket.disconnect();
         };
-    }, []);
+    }, [groupId]);
 
     const handleSendMessage = () => {
-        if (!message.trim()) return; // Prevent empty messages
+        if (!message.trim() || !groupId || !socket || user?.full_name === undefined) return;
     
-        const newMessage: ChatMessage = {
-            username: "User123",
-            text: message,
-            time: new Date().toISOString(),
-        };
+
+        const time_created = new Date().toISOString();
     
-        sendMessage(roomId, message, "User123");
+        sendMessage(groupId, message, user.full_name, time_created)
+        //setMessages((prev) => [...prev, {groupId, content: message, username: user.full_name, time_created}]);
+        setMessage("");
+    };
     
-        setMessages((prev) => [...prev, newMessage.text]);
-    
-        setMessage(""); // Clear input field
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            handleSendMessage();
+        }
     };
 
     return (
-        <div>
-            <h2>Chat Room</h2>
-            <div>
-                {messages.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                ))}
-            </div>
-            <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type a message..."
-            />
-            <button onClick={handleSendMessage}>Send</button>
-        </div>
+        <Container maxWidth="sm">
+            <Paper elevation={3} sx={{ padding: 3, marginTop: 4 }}>
+                <Typography variant="h5" align="center" gutterBottom>
+                    Chat Room {groupId}
+                </Typography>
+
+                {/* Chat Messages */}
+                <Box
+                    sx={{
+                        height: 300,
+                        overflowY: "auto",
+                        padding: 2,
+                        borderRadius: 1,
+                        backgroundColor: "#f5f5f5",
+                        marginBottom: 2,
+                    }}
+                >
+                    {messages.length > 0 ? (
+                        messages.map((msg, index) => (
+                            <Typography key={index} variant="body2" sx={{ marginBottom: 1 }}>
+                                <strong>{msg.username}:</strong> {msg.content}
+                            </Typography>
+                        ))
+                    ) : (
+                        <Typography color="textSecondary" align="center">
+                            No messages yet
+                        </Typography>
+                    )}
+                </Box>
+
+                {/* Input and Send Button */}
+                <Box sx={{ display: "flex", gap: 1 }}>
+                    <TextField
+                        fullWidth
+                        label="Type a message..."
+                        variant="outlined"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={handleKeyDown} // Send message on Enter key
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSendMessage}
+                    >
+                        Send
+                    </Button>
+                </Box>
+            </Paper>
+        </Container>
     );
 };
 
