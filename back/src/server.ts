@@ -8,15 +8,25 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import { authenticateToken } from "./middlewares/auth.middleware.js";
 import { getDb } from "./db.js";
+import { Server } from "socket.io";
+import chatRoutes from "./routes/chat.routes.js";
+import { initChatServer } from "./websocket/chat.js";
+import http from "http";
+import cors from "cors";
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, ".env")});
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+initChatServer(io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
+app.use(cors());
 
 // Rate limiting middleware
 const limiter = rateLimit({
@@ -24,9 +34,7 @@ const limiter = rateLimit({
   max: parseInt(process.env.RATE_LIMIT_MAX || "100", 10),
 });
 app.use(limiter);
-
-// Database setup
-const db = await getDb();
+app.use("/api/chat", chatRoutes);
 
 // Serve frontend files
 let reactAssetsPath = path.join(__dirname, "../front/dist");
@@ -49,6 +57,6 @@ const PORT = parseInt(process.env.PORT || "3000", 10);
 const HOST = process.env.HOST || "localhost";
 const PROTOCOL = process.env.PROTOCOL || "http";
 
-app.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, () => {
   console.log(`${PROTOCOL}://${HOST}:${PORT}`);
 });

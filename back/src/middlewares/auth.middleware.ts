@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+export interface AuthenticatedRequest extends Request {
+    user?: { id: number; email: string; full_name: string };
+}
+
 export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+
     const JWT_SECRET = process.env.JWT_SECRET as string;
     const token = req.cookies.token;
     if (!token) return res.sendStatus(401); // Unauthorized

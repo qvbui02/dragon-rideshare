@@ -6,7 +6,8 @@ import { AuthContext } from "../contexts/AuthContext";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, setIsAuthenticated, setUser } = useContext(AuthContext);
+  const { isAuthenticated, user, setIsAuthenticated, setUser } =
+    useContext(AuthContext);
 
   const handleLogout = async () => {
     try {
@@ -36,10 +37,16 @@ const Header: React.FC = () => {
         {isAuthenticated ? (
           <>
             {user && (
-              <Typography variant="body1" sx={{ marginRight: 2, color: "white" }}>
+              <Typography
+                variant="body1"
+                sx={{ marginRight: 2, color: "white" }}
+              >
                 {user.full_name}
               </Typography>
             )}
+            <Button color="inherit" component={Link} to="/chatgroup">
+              Inbox
+            </Button>
             <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>

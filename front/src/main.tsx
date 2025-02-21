@@ -6,6 +6,8 @@ import Home from "./components/Home";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import { AuthProvider } from "./contexts/AuthContext";
+import Chat from "./components/Chat";
+import GroupChatWidgets from "./components/GroupChatWidget";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/register", element: <Register /> },
       { path: "/login", element: <Login /> },
+      { path: "/chat/:groupId", element: <Chat />},
+      { path: "/chatgroup", element: <GroupChatWidgets />},
     ],
   },
 ]);
