@@ -6,6 +6,8 @@ import Home from "./components/Home";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import { AuthProvider } from "./contexts/AuthContext";
+import VerifyPending from "./components/VerifyPending";
+import VerifyFailed from "./components/VerifyFailed";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/register", element: <Register /> },
       { path: "/login", element: <Login /> },
+      { path: "/verify-pending", element: <VerifyPending /> },
+      { path: "/verify-failed", element: <VerifyFailed />},
     ],
   },
 ]);

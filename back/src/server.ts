@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
+import verifyRoutes from "./routes/verify.routes.js";
 import { authenticateToken } from "./middlewares/auth.middleware.js";
 import { getDb } from "./db.js";
 
@@ -34,10 +35,7 @@ app.use(express.static(reactAssetsPath));
 
 // Routes
 app.use("/api/auth", authRoutes);
-
-app.get("/api/protected", authenticateToken, (req, res) => {
-    res.json({ message: "You accessed a protected route!", user: (req as any).user });
-});
+app.use("/", verifyRoutes);
 
 // Serve frontend index.html
 app.get("*", (req, res) => {

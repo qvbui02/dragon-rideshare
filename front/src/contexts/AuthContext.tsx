@@ -9,15 +9,13 @@ interface User {
   full_name: string;
 }
 
-interface AuthContextType {
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<{
   isAuthenticated: boolean;
   user: User | null;
-  setIsAuthenticated: (value: boolean) => void;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
   setUser: (user: User | null) => void;
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext<AuthContextType>({
+}>({
   isAuthenticated: false,
   user: null,
   setIsAuthenticated: () => {},
@@ -29,18 +27,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    axios
-      .get("/api/auth/me")
-      .then((response) => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("/api/auth/me");
         if (response.status === 200) {
           setIsAuthenticated(true);
           setUser(response.data);
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error("Error fetching user:", error);
         setIsAuthenticated(false);
         setUser(null);
-      });
+      }
+    };
+
+    fetchUser();
   }, []);
 
   return (

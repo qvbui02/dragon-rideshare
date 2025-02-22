@@ -32,11 +32,9 @@ const Register: React.FC = () => {
     try {
       const response = await axios.post("/api/auth/register", formData);
 
-      // If successful, redirect to /login
       if (response.status === 201) {
-        setSuccess("User registered successfully! Redirecting to login...");
-        // Briefly show success message before redirect
-        navigate("/login")
+        setSuccess("User registered successfully! Redirecting to verification page...");
+        navigate('/verify-pending', { state: { email: formData.email } });
       }
     } catch (err: any) {
       if (err.response && err.response.data?.error) {

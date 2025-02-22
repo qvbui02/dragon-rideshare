@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { hashPassword, verifyPassword } from "../utils/hashPassword.js";
 import { Request, Response } from "express";
+import crypto from "crypto";
+import { sendVerificationEmail } from "../utils/emailService.js";
 
 // Simulated database query function
 async function findUserByEmail(db: any, email: string) {
@@ -13,6 +15,10 @@ export async function registerUser(req: Request, res: Response, db: any) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    if (!email.endsWith('@drexel.edu')) {
+        return res.status(400).json({ error: "Email must be a Drexel email" });
+    }
+
     try {
         const existingUser = await findUserByEmail(db, email);
         if (existingUser) {
@@ -20,10 +26,24 @@ export async function registerUser(req: Request, res: Response, db: any) {
         }
 
         const hashedPassword = await hashPassword(password);
-        await db.run("INSERT INTO users (email, password, full_name, phone_number) VALUES (?, ?, ?, ?)", 
-                     [email, hashedPassword, full_name, phone_number]);
+        const result = await db.run(
+            "INSERT INTO users (email, password, full_name, phone_number) VALUES (?, ?, ?, ?)",
+            [email, hashedPassword, full_name, phone_number]
+        );
 
-        res.status(201).json({ message: "User registered successfully" });
+        const userId = result.lastID;
+        
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await db.run(
+            "INSERT INTO verification_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+            [userId, token, expiresAt]
+        );
+
+        await sendVerificationEmail(email, token);
+
+        res.status(201).json({ message: "Registration successful. Please verify your email." });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Server error" });
@@ -40,6 +60,10 @@ export async function loginUser(req: Request, res: Response, db: any) {
         const user = await findUserByEmail(db, email);
         if (!user || !(await verifyPassword(user.password, password))) {
             return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        if (!user.is_verified) {
+            return res.status(403).json({ error: "Please verify your email before logging in." });
         }
 
         const JWT_SECRET = process.env.JWT_SECRET as string;
