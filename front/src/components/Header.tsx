@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AppBar, Toolbar, Box, Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,8 +6,23 @@ import { AuthContext } from "../contexts/AuthContext";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, setIsAuthenticated, setUser } =
-    useContext(AuthContext);
+  const { isAuthenticated, user, setIsAuthenticated, setUser } = useContext(AuthContext);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        try {
+          const response = await axios.get("/api/auth/me", { withCredentials: true });
+          setIsAdmin(response.data.is_admin || false);
+        } catch (error) {
+          console.error("Error checking admin status:", error);
+        }
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -47,6 +62,13 @@ const Header: React.FC = () => {
             <Button color="inherit" component={Link} to="/chatgroup">
               Inbox
             </Button>
+
+            {isAdmin && (
+              <Button color="inherit" component={Link} to="/admin">
+                Admin Panel
+              </Button>
+            )}
+
             <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>

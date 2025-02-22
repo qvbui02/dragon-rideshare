@@ -10,6 +10,7 @@ import Chat from "./components/Chat";
 import GroupChatWidgets from "./components/GroupChatWidget";
 import VerifyPending from "./components/VerifyPending";
 import VerifyFailed from "./components/VerifyFailed";
+import AdminPanel from "./components/AdminPanel";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: "/chatgroup", element: <GroupChatWidgets />},
       { path: "/verify-pending", element: <VerifyPending /> },
       { path: "/verify-failed", element: <VerifyFailed />},
+      { path: "/admin", element: <AdminPanel /> },
     ],
   },
 ]);

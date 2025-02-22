@@ -7,8 +7,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import verifyRoutes from "./routes/verify.routes.js";
-import { authenticateToken } from "./middlewares/auth.middleware.js";
-import { getDb } from "./db.js";
+import adminRoutes from "./routes/admin.routes.js";
 import { Server } from "socket.io";
 import chatRoutes from "./routes/chat.routes.js";
 import { initChatServer } from "./websocket/chat.js";
@@ -44,6 +43,7 @@ app.use(express.static(reactAssetsPath));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/", verifyRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Serve frontend index.html
 app.get("*", (req, res) => {
