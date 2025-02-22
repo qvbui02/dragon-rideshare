@@ -1,51 +1,66 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { connectSocket, joinChatRoom, sendMessage } from "../websocket/socket";
+import { fetchHistoricMessages, saveMessages } from "../services/message";
+
 
 export interface ChatMessage {
-    groupId: string,
-    username: string,
-    content: string,
-    time_created: string
+    trip_id: string,
+    sender_id: number,
+    username: string;
+    message: string,
+    sent_at: string
 }
 
 import { Container, TextField, Button, Typography, Paper, Box } from "@mui/material";
 import { AuthContext } from "../contexts/AuthContext";
 
 const Chat: React.FC = () => {
-    const { groupId } = useParams<{ groupId: string }>();
+    const { trip_id } = useParams<{ trip_id: string }>();
     const { user } = useContext(AuthContext)
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [socket, setSocket] = useState<any>(null);
 
     useEffect(() => {
-        console.log(groupId);
-        if (!groupId) return;
+        if (!trip_id) return;
 
         const newSocket = connectSocket();
         setSocket(newSocket);
 
-        joinChatRoom(groupId);
+        newSocket.on("connect", () => {
+        });
+
+        joinChatRoom(trip_id);
 
         newSocket.on("message", (msg: ChatMessage) => {
             setMessages((prev) => [...prev, msg]);
         });
 
+        fetchHistoricMessages(trip_id)
+        .then((data) => {
+            setMessages(data);
+        })
+
         return () => {
             newSocket.disconnect();
         };
-    }, [groupId]);
+    }, [trip_id]);
 
-    const handleSendMessage = () => {
-        if (!message.trim() || !groupId || !socket || user?.full_name === undefined) return;
+    const handleSendMessage = async () => {
+        if (!message.trim() || !trip_id || !socket || user?.full_name === undefined) return;
     
-
-        const time_created = new Date().toISOString();
+        const sender_id = Number(user.user_id);
+        const sent_at = new Date().toISOString();
+        const username = user.full_name;
     
-        sendMessage(groupId, message, user.full_name, time_created)
-        //setMessages((prev) => [...prev, {groupId, content: message, username: user.full_name, time_created}]);
-        setMessage("");
+        try {
+            await saveMessages(trip_id, message, sent_at); 
+            sendMessage(trip_id, message, sender_id, username, sent_at);
+            setMessage(""); 
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
     };
     
 
@@ -60,7 +75,7 @@ const Chat: React.FC = () => {
         <Container maxWidth="sm">
             <Paper elevation={3} sx={{ padding: 3, marginTop: 4 }}>
                 <Typography variant="h5" align="center" gutterBottom>
-                    Chat Room {groupId}
+                    Chat Room {trip_id}
                 </Typography>
 
                 {/* Chat Messages */}
@@ -77,7 +92,7 @@ const Chat: React.FC = () => {
                     {messages.length > 0 ? (
                         messages.map((msg, index) => (
                             <Typography key={index} variant="body2" sx={{ marginBottom: 1 }}>
-                                <strong>{msg.username}:</strong> {msg.content}
+                                <strong>{msg.username}:</strong> {msg.message}
                             </Typography>
                         ))
                     ) : (
