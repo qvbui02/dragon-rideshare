@@ -66,6 +66,11 @@ export async function loginUser(req: Request, res: Response, db: any) {
             return res.status(403).json({ error: "Please verify your email before logging in." });
         }
 
+        const isBanned = await db.get("SELECT * FROM banned_users WHERE user_id = ?", [user.user_id]);
+        if (isBanned) {
+            return res.status(403).json({ error: "You have been banned. Contact admin for more information." });
+        }
+
         const JWT_SECRET = process.env.JWT_SECRET as string;
         const token = jwt.sign({ id: user.user_id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
 
@@ -89,7 +94,12 @@ export function logoutUser(req: Request, res: Response) {
 export async function getCurrentUser(req: Request, res: Response, db: any) {
     try {
         const userId = (req as any).user.id;
-        const user = await db.get("SELECT user_id, email, full_name FROM users WHERE user_id = ?", [userId]);
+        const user = await db.get(
+            `SELECT u.user_id, u.email, u.full_name, 
+                    CASE WHEN a.user_id IS NOT NULL THEN 1 ELSE 0 END AS is_admin
+             FROM users u
+             LEFT JOIN admins a ON u.user_id = a.user_id
+             WHERE u.user_id = ?`, [userId]);
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
