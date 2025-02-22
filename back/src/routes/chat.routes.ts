@@ -5,7 +5,7 @@ import { authenticateToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.get('/inbox/:roomId', authenticateToken, async (req, res) => {
+router.get('/inbox/:trip_id', authenticateToken, async (req, res) => {
     const db = await getDb();
     getChatHistory(req, res, db);
 });

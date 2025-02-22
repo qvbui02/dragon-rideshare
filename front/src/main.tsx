@@ -16,7 +16,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/register", element: <Register /> },
       { path: "/login", element: <Login /> },
-      { path: "/chat/:groupId", element: <Chat />},
+      { path: "/chat/:trip_id", element: <Chat />},
       { path: "/chatgroup", element: <GroupChatWidgets />},
     ],
   },

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface Group {
-    trip_id: number;
+    trip_id: string;
     members: number;
     lastMessage: string;
 }
@@ -18,7 +18,12 @@ const GroupChatWidgets: React.FC = () => {
         const fetchGroups = async () => {
             try {
                 const response = await axios.get("/api/chat/groups", { withCredentials: true });
-                setGroups(response.data.group_chats);
+                const formattedGroups = response.data.group_chats.map((group: any) => ({
+                    ...group,
+                    trip_id: String(group.trip_id),
+                }));
+
+                setGroups(formattedGroups);
             } catch (error: any) {
                 console.error("Error fetching groups:", error);
                 if (error.response) {
@@ -32,8 +37,8 @@ const GroupChatWidgets: React.FC = () => {
         fetchGroups();
     }, []);
 
-    const handleJoinChat = (groupId: number) => {
-        navigate(`/chat/${groupId}`);
+    const handleJoinChat = (trip_id: string) => {
+        navigate(`/chat/${trip_id}`);
     };
 
     return (

@@ -1,5 +1,4 @@
 import { io, Socket } from "socket.io-client";
-import { ChatMessage } from "../components/Chat.tsx"; 
 
 const SERVER_URL = "http://localhost:3000";
 
@@ -14,15 +13,12 @@ export const connectSocket = () => {
         });
 
         socket.on("connect", () => {
-            console.log("Connected to WebSocket server:", socket?.id);
         });
 
-        socket.on("message", (msg: ChatMessage) => {
-            console.log("Message from server:", msg);
+        socket.on("message", () => {
         });
 
         socket.on("disconnect", () => {
-            console.log("Disconnected from server");
         });
     }
     return socket;
@@ -35,13 +31,12 @@ export const getSocket = () => {
     return socket;
 };
 
-export const joinChatRoom = (groupId: string) => {
+export const joinChatRoom = (trip_id: string) => {
     const socket = getSocket();
-    socket.emit("joinRoom", groupId);
+    socket.emit("joinRoom", trip_id);
 };
 
-export const sendMessage = (groupId: string, content: string, username: string, time_created: string) => {
+export const sendMessage = (trip_id: string, message: string, sender_id: number, username: string, sent_at: string) => {
     const socket = getSocket();
-    console.log("Sending message:", { groupId, content, username, time_created }); // ✅ Debugging log
-    socket.emit("chatMessage", { groupId, content, username, time_created });
+    socket.emit("chatMessage", { trip_id, message, sender_id, username, sent_at });
 };
