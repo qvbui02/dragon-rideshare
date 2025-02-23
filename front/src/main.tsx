@@ -11,6 +11,7 @@ import GroupChatWidgets from "./components/GroupChatWidget";
 import VerifyPending from "./components/VerifyPending";
 import VerifyFailed from "./components/VerifyFailed";
 import AdminPanel from "./components/AdminPanel";
+import AddRide from "./components/AddRide";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/verify-pending", element: <VerifyPending /> },
       { path: "/verify-failed", element: <VerifyFailed />},
       { path: "/admin", element: <AdminPanel /> },
+      {path: "/addride", element: <AddRide />}
     ],
   },
 ]);
