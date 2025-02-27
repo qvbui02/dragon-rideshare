@@ -9,6 +9,8 @@ import authRoutes from "./routes/auth.routes.js";
 import verifyRoutes from "./routes/verify.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import addRideRoutes from "./routes/addride.routes.js";
+import ratingRoutes from "./routes/rating.routes.js"
+import tripRoutes from "./routes/trip.routes.js"
 import { Server } from "socket.io";
 import chatRoutes from "./routes/chat.routes.js";
 import { initChatServer } from "./websocket/chat.js";
@@ -46,6 +48,8 @@ app.use("/api/auth", authRoutes);
 app.use("/", verifyRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/addride", addRideRoutes);
+app.use("/api/rating", ratingRoutes)
+app.use("/api/trip", tripRoutes);
 
 // Serve frontend index.html
 app.get("*", (req, res) => {
