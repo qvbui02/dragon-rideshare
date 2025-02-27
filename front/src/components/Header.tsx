@@ -59,6 +59,9 @@ const Header: React.FC = () => {
                 {user.full_name}
               </Typography>
             )}
+            <Button color="inherit" component={Link} to="/showmember">
+              Historic Travelers
+            </Button>
             <Button color="inherit" component={Link} to="/chatgroup">
               Inbox
             </Button>
