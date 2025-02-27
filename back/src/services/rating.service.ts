@@ -32,7 +32,7 @@ export async function getGivenRating(req: AuthenticatedRequest, res: Response, d
     }
 };
 
-export async function addRating(req: AuthenticatedRequest, res: Response, db: any) {
+/*export async function addRating(req: AuthenticatedRequest, res: Response, db: any) {
     const rated_by = req.user?.id
     const { rated_user, trip_id, rating, feedback, created_at } = req.body
 
@@ -100,6 +100,43 @@ export async function editRating(req: AuthenticatedRequest, res: Response, db: a
         console.error("Database error:", error);
         res.status(500).json({ error: "Server Error" });
     }
+};*/
+
+export async function upsertRating(req: AuthenticatedRequest, res: Response, db: any) {
+    const rated_by = req.user?.id;
+    const { rated_user, trip_id, rating, feedback, created_at } = req.body;
+
+    if (!rated_by || !rated_user || !trip_id || !rating) {
+        return res.status(400).json({ error: "Missing rated_by, rated_user, trip_id, or rating" });
+    }
+
+    try {
+        // Check if a rating already exists
+        const existingRating = await db.get(
+            "SELECT * FROM user_ratings WHERE rated_by = ? AND rated_user = ? AND trip_id = ?",
+            [rated_by, rated_user, trip_id]
+        );
+
+        if (existingRating) {
+            // If rating exists, update it
+            await db.run(
+                "UPDATE user_ratings SET rating = ?, feedback = ? WHERE rated_by = ? AND rated_user = ? AND trip_id = ?",
+                [rating, feedback ?? null, rated_by, rated_user, trip_id]
+            );
+            return res.status(200).json({ message: "Rating updated successfully" });
+        } else {
+            // Otherwise, insert new rating
+            await db.run(
+                "INSERT INTO user_ratings (rated_by, rated_user, trip_id, rating, feedback, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                [rated_by, rated_user, trip_id, rating, feedback ?? null, created_at]
+            );
+            return res.status(200).json({ message: "Thank you for rating." });
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ error: "Server error" });
+    }
 };
+
 
 
