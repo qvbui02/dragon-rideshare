@@ -12,6 +12,7 @@ import VerifyPending from "./components/VerifyPending";
 import VerifyFailed from "./components/VerifyFailed";
 import AdminPanel from "./components/AdminPanel";
 import AddRide from "./components/AddRide";
+import ShowMember from "./components/ShowMember"
 
 const router = createBrowserRouter([
   {
@@ -25,7 +26,8 @@ const router = createBrowserRouter([
       { path: "/verify-pending", element: <VerifyPending /> },
       { path: "/verify-failed", element: <VerifyFailed />},
       { path: "/admin", element: <AdminPanel /> },
-      {path: "/addride", element: <AddRide />}
+      { path: "/addride", element: <AddRide />},
+      { path: "/showmember", element: <ShowMember />}
     ],
   },
 ]);
