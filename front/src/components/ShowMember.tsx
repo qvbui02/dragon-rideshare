@@ -3,6 +3,7 @@ import axios from "axios";
 import { 
   Box, Card, CardContent, Typography, Alert, Rating, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle
 } from "@mui/material";
+import ReportModal from "./ReportModal";
 
 interface TripMember {
   trip_id: number;
@@ -28,6 +29,8 @@ const ShowMember: React.FC = () => {
   const [ratings, setRatings] = useState<{ [trip_id: number]: { [user_id: number]: number } }>({});
   const [feedbacks, setFeedbacks] = useState<{ [trip_id: number]: { [user_id: number]: string } }>({});
   const [userRatings, setUserRatings] = useState<{ [trip_id: number]: { [user_id: number]: UserRating } }>({});
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [selectedReportUser, setSelectedReportUser] = useState<{ trip_id: number; user_id: number } | null>(null);
 
   useEffect(() => {
     const fetchTripMembers = async () => {
@@ -48,6 +51,7 @@ const ShowMember: React.FC = () => {
           setTripMembers({});
         }
       } catch (err) {
+        console.error(err);
         setError("Failed to fetch members on the same trip.");
       }
     };
@@ -97,6 +101,8 @@ const ShowMember: React.FC = () => {
 
   const handleCloseRatingDialog = () => {
     setSelectedUser(null);
+    setRatings((prev) => ({ ...prev, [selectedUser!.trip_id]: { ...(prev[selectedUser!.trip_id] || {}), [selectedUser!.user_id]: 0 } })); // Reset ratings
+    setFeedbacks((prev) => ({ ...prev, [selectedUser!.trip_id]: { ...(prev[selectedUser!.trip_id] || {}), [selectedUser!.user_id]: "" } })); // Reset feedback
   };
 
   const handleRatingSubmit = async () => {
@@ -130,6 +136,28 @@ const ShowMember: React.FC = () => {
     }
   };
 
+  const handleOpenReportDialog = (trip_id: number, user_id: number) => {
+    setSelectedReportUser({ trip_id, user_id });
+    setReportModalOpen(true);
+  };
+
+  const handleReportSubmit = async (reason: string) => {
+    if (!selectedReportUser) return;
+
+    const { trip_id, user_id } = selectedReportUser;
+
+    try {
+      await axios.post("/api/report", {
+        reported_user: user_id,
+        trip_id,
+        reason,
+      });
+      // Optionally, you can show a success message or refresh the data
+    } catch (error) {
+      console.error("Error submitting report:", error);
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: "100%", margin: "auto", padding: 3 }}>
       <Typography variant="h4" textAlign="center" gutterBottom>
@@ -142,9 +170,9 @@ const ShowMember: React.FC = () => {
         Object.entries(tripMembers).map(([trip_id, members]) => (
           <Card key={trip_id} sx={{ marginBottom: 3, maxWidth: 800, marginX: "auto", padding: 2 }}>
             <CardContent>
-              <Typography variant="h6" fontWeight="bold" color="primary">
-                Trip ID: {trip_id}
-              </Typography>
+            <Typography variant="h6" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
+              Trip ID: {trip_id}
+            </Typography>
               {members.map((member) => {
                 const trip_num = Number(trip_id);
                 const existingRating = userRatings[trip_num]?.[member.other_member_id];
@@ -168,42 +196,53 @@ const ShowMember: React.FC = () => {
                       )}
                     </Box>
 
-                    {/* If the user has already been rated, show the rating and feedback */}
-                    {existingRating ? (
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          <strong>Rating Given:</strong>
-                        </Typography>
-                        <Rating value={existingRating.rating} readOnly />
-                        {existingRating.feedback && (
-                          <Typography variant="body2" color="text.secondary">
-                            <strong>Feedback:</strong> {existingRating.feedback}
-                          </Typography>
-                        )}
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 1 }}>
+                      {existingRating ? (
+                        <>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              <strong>Rating Given:</strong>
+                            </Typography>
+                            <Rating value={existingRating.rating} readOnly />
+                            {existingRating.feedback && (
+                              <Typography variant="body2" color="text.secondary">
+                                <strong>Feedback:</strong> {existingRating.feedback}
+                              </Typography>
+                            )}
+                          </Box>
 
-                        {/* Edit Rating Button */}
+                          {/* Edit Rating Button */}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleOpenRatingDialog(Number(trip_id), member.other_member_id)}
+                          >
+                            Edit Rating
+                          </Button>
+                        </>
+                      ) : (
                         <Button
                           variant="contained"
-                          color="secondary"
+                          color="primary"
                           size="small"
-                          sx={{ mt: 1 }}
                           onClick={() => handleOpenRatingDialog(Number(trip_id), member.other_member_id)}
                         >
-                          Edit Rating
+                          Click Here to Rate
                         </Button>
-                      </Box>
-                    ) : (
-                      // Show rate button if not yet rated
+                      )}
+
+                      {/* Report Button (Always Visible) */}
                       <Button
                         variant="contained"
-                        color="primary"
+                        color="secondary"
                         size="small"
-                        onClick={() => handleOpenRatingDialog(Number(trip_id), member.other_member_id)}
-                        sx={{ mt: 1, alignSelf: "flex-start" }}
+                        onClick={() => handleOpenReportDialog(Number(trip_id), member.other_member_id)}
                       >
-                        Click Here to Rate
+                        Report
                       </Button>
-                    )}
+                    </Box>
+
                   </Box>
                 );
               })}
@@ -226,6 +265,12 @@ const ShowMember: React.FC = () => {
           <Button onClick={handleRatingSubmit} variant="contained">Submit</Button>
         </DialogActions>
       </Dialog>
+
+      <ReportModal
+        open={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        onSubmit={handleReportSubmit}
+      />
     </Box>
   );
 };

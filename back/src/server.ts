@@ -16,6 +16,7 @@ import chatRoutes from "./routes/chat.routes.js";
 import { initChatServer } from "./websocket/chat.js";
 import http from "http";
 import cors from "cors";
+import reportRoutes from "./routes/report.routes.js";
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 // Load environment variables
@@ -50,6 +51,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/addride", addRideRoutes);
 app.use("/api/rating", ratingRoutes)
 app.use("/api/trip", tripRoutes);
+app.use("/api/report", reportRoutes);
 
 // Serve frontend index.html
 app.get("*", (req, res) => {
