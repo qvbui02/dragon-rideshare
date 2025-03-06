@@ -6,7 +6,7 @@ import Home from "./components/Home";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import { AuthProvider } from "./contexts/AuthContext";
-import Chat from "./components/Chat";
+import TripPage from "./components/TripPage";
 import GroupChatWidgets from "./components/GroupChatWidget";
 import VerifyPending from "./components/VerifyPending";
 import VerifyFailed from "./components/VerifyFailed";
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/register", element: <Register /> },
       { path: "/login", element: <Login /> },
-      { path: "/chat/:trip_id", element: <Chat />},
+      { path: "/chat/:trip_id", element: <TripPage />},
       { path: "/chatgroup", element: <GroupChatWidgets />},
       { path: "/verify-pending", element: <VerifyPending /> },
       { path: "/verify-failed", element: <VerifyFailed />},

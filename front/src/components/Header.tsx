@@ -63,7 +63,7 @@ const Header: React.FC = () => {
               Historic Travelers
             </Button>
             <Button color="inherit" component={Link} to="/chatgroup">
-              Inbox
+              Trip
             </Button>
 
             {isAdmin && (
