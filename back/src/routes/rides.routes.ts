@@ -13,13 +13,13 @@ router.get("/", async (req: Request, res: Response) => {
         const rides = await getAllRides(req, res, db);
 
         if (rides && rides.length > 0) {
-            res.status(200).json({ message: "All rides fetched successfully", rides });
+            res.status(200).json({ message: "All trips fetched successfully", rides });
         } else {
-            res.status(404).json({ error: "No rides found" });
+            res.status(404).json({ error: "No trips found" });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Error getting rides" });
+        res.status(500).json({ error: "Error getting trips" });
     }
 });
 

@@ -20,12 +20,12 @@ export async function getAllRides(req: Request, res: Response, db: any) {
         );
 
         if (!rides || rides.length === 0) {
-            return res.status(404).json({ error: "No active rides found" });
+            return res.status(404).json({ error: "No active trips found" });
         }
 
         return rides;
     } catch (error) {
-        console.error("Error fetching rides:", error);
+        console.error("Error fetching trips:", error);
         res.status(500).json({ error: "Server error" });
     }
 }
