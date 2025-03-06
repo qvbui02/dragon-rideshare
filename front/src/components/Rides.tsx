@@ -12,7 +12,7 @@ const Rides: React.FC = () => {
                 console.log(response.data.rides);
                 setRides(response.data.rides); 
             } catch (err) {
-                setError("Error fetching rides");
+                setError("Error fetching trips");
                 console.error(err);
             }
         };
@@ -22,13 +22,13 @@ const Rides: React.FC = () => {
 
     return (
         <div>
-            <h1>All Rides</h1>
+            <h1>All Trips</h1>
             {error && <p>{error}</p>}
             {rides.length > 0 ? (
                 <ul>
                     {rides.map((ride, index) => (
                         <li key={index}>
-                            <strong>Ride {index + 1}:</strong>
+                            <strong>Trip {index + 1}:</strong>
                             <p>Created by: {ride.created_by_name}</p>
                             <p>From {ride.source} to {ride.destination}</p>
                             <p>Mode of transport: {ride.mode_of_transport}</p>
@@ -39,7 +39,7 @@ const Rides: React.FC = () => {
                     ))}
                 </ul>
             ) : (
-                <p>No rides available</p>
+                <p>No trips available</p>
             )}
         </div>
     );

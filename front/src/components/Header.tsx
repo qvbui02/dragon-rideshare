@@ -49,7 +49,7 @@ const Header: React.FC = () => {
           </Typography>
         </Box>
         <Button color="inherit" component={Link} to="/rides">
-              Rides
+              Trips
         </Button>
 
         {isAuthenticated ? (
