@@ -1,12 +1,13 @@
 import { Router, Request, Response } from "express";
 import { dbMiddleware } from "../middlewares/db.middleware.js";
-import { getAllRides } from "../services/rides.service.js";
+import { getAllRides, joinTrip } from "../services/rides.service.js";
+import { authenticateToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 router.use(dbMiddleware);
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", authenticateToken, async (req: Request, res: Response) => {
     const db = (req as any).db;
 
     try {
@@ -22,5 +23,19 @@ router.get("/", async (req: Request, res: Response) => {
         res.status(500).json({ error: "Error getting trips" });
     }
 });
+
+router.post("/join-trip", authenticateToken, async (req: Request, res: Response) => {
+    const db = (req as any).db;
+
+    try {
+        await joinTrip(req, res, db);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+
 
 export default router;
