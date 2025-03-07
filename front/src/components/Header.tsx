@@ -49,6 +49,7 @@ const Header: React.FC = () => {
           </Typography>
         </Box>
 
+
         {isAuthenticated ? (
           <>
             {user && (
@@ -59,6 +60,10 @@ const Header: React.FC = () => {
                 {user.full_name}
               </Typography>
             )}
+
+            <Button color="inherit" component={Link} to="/rides">
+              Trips
+            </Button>
             <Button color="inherit" component={Link} to="/showmember">
               Historic Travelers
             </Button>

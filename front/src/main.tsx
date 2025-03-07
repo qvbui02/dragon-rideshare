@@ -13,6 +13,7 @@ import VerifyFailed from "./components/VerifyFailed";
 import AdminPanel from "./components/AdminPanel";
 import AddTrip from "./components/AddTrip";
 import ShowMember from "./components/ShowMember"
+import Rides from "./components/Rides";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +28,8 @@ const router = createBrowserRouter([
       { path: "/verify-failed", element: <VerifyFailed />},
       { path: "/admin", element: <AdminPanel /> },
       { path: "/addtrip", element: <AddTrip />},
-      { path: "/showmember", element: <ShowMember />}
+      { path: "/showmember", element: <ShowMember />},
+      {path: "/rides", element: <Rides />}
     ],
   },
 ]);

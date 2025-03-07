@@ -1,10 +1,14 @@
 import { Router, Request, Response } from "express";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { dbMiddleware } from "../middlewares/db.middleware.js";
 import { addRide } from "../services/addride.service.js";
+
 const router = Router();
 
+router.use(dbMiddleware);
+
 router.post("/", authenticateToken, async (req: Request, res: Response) => {
-    const db = (req as any).db; 
+    const db = (req as any).db;
 
     const { source, destination, source_radius, destination_radius, mode_of_transport, departure_time, departure_date, max_passengers, hours } = req.body;
 
@@ -15,7 +19,7 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
     try {
         const result = await addRide(req, res, db);
         if (result) {
-            res.status(201).json({ message: "Ride added successfully"});
+            res.status(201).json({ message: "Ride added successfully" });
         } else {
             res.status(500).json({ error: "Failed to add ride" });
         }
@@ -25,5 +29,5 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
     }
 });
 
-
 export default router;
+
