@@ -63,12 +63,14 @@ const Header: React.FC = () => {
               </Typography>
             )}
 
-            <Button color="inherit" component={Link} to="/chatgroup">
-              Inbox
+            <Button color="inherit" component={Link} to="/showmember">
+              Historic Travelers
             </Button>
-
-            <Button color="inherit" component={Link} to="/addride">
-              Add Ride
+            <Button color="inherit" component={Link} to="/addtrip">
+              Create Trip
+            </Button>
+            <Button color="inherit" component={Link} to="/chatgroup">
+              My Trip
             </Button>
 
             {isAdmin && (
