@@ -29,3 +29,34 @@ export async function getAllRides(req: Request, res: Response, db: any) {
         res.status(500).json({ error: "Server error" });
     }
 }
+
+export const joinTrip = async (req: Request, res: Response, db: any) => {
+    const { trip_id } = req.body;
+    const userId = (req as any).user?.id;
+
+    if (!trip_id) {
+        console.error("Error: Trip ID is missing in request body");
+        return res.status(400).json({ error: "Trip ID is required" });
+    }
+
+    try {
+
+        const existingMember = await db.get(
+            "SELECT * FROM trip_members WHERE trip_id = ? AND user_id = ?",
+            [trip_id, userId]
+        );
+
+        if (existingMember) {
+            return res.status(400).json({ error: "You have already joined this trip" });
+        }
+
+        await db.run(
+            "INSERT INTO trip_members (trip_id, user_id) VALUES (?, ?)",
+            [trip_id, userId]
+        );
+
+        res.status(200).json({ message: "Successfully joined the trip" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+    }
+};

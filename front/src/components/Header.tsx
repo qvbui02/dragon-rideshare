@@ -48,9 +48,7 @@ const Header: React.FC = () => {
             Rideshare
           </Typography>
         </Box>
-        <Button color="inherit" component={Link} to="/rides">
-              Trips
-        </Button>
+
 
         {isAuthenticated ? (
           <>
@@ -62,6 +60,10 @@ const Header: React.FC = () => {
                 {user.full_name}
               </Typography>
             )}
+
+            <Button color="inherit" component={Link} to="/rides">
+              Trips
+            </Button>
 
             <Button color="inherit" component={Link} to="/chatgroup">
               Inbox
