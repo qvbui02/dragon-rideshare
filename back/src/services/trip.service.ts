@@ -22,3 +22,22 @@ export async function getUserTrip(req: AuthenticatedRequest, res: Response, db: 
         return res.status(400).json({ error: "Server error" });
     }
 };
+
+export async function getTripDetails(req: AuthenticatedRequest, res: Response, db: any) {
+    const trip_id = req.params.trip_id;
+
+    if (!trip_id) {
+        return res.status(400).json({ error: "Missing trip_id" });
+    }
+
+    try {
+        const trip_details = await db.get(
+            `SELECT t.trip_id, t.source, t.destination, t.departure_time, t.departure_date, t.created_at
+            FROM trips t
+            WHERE t.trip_id = ?`, [trip_id]
+        );
+        return res.status(200).json({ trip_details });
+    } catch {
+        return res.status(400).json({ error: "Server error" });
+    }
+};

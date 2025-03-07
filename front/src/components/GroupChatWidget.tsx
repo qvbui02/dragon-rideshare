@@ -65,7 +65,7 @@ const GroupChatWidgets: React.FC = () => {
                                         </Typography>
                                     </CardContent>
                                     <Button variant="contained" color="primary" onClick={() => handleJoinChat(group.trip_id)}>
-                                        Join Chat
+                                        Connect & Explore
                                     </Button>
                                 </Card>
                             </Grid>
