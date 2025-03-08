@@ -36,11 +36,15 @@ CREATE TABLE trips (
     created_by INT NOT NULL,
     source VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
+    source_latitude DECIMAL(10, 8),
+    source_longitude DECIMAL(11, 8),
+    destination_latitude DECIMAL(10, 8),
+    destination_longitude DECIMAL(11, 8),
     source_radius INT CHECK (source_radius >= 0),
     destination_radius INT CHECK (destination_radius >= 0),
     mode_of_transport VARCHAR(50) CHECK (mode_of_transport IN ('Car', 'Taxi', 'Other')),
     departure_time DATETIME NOT NULL,
-    departure_date  TIMESTAMP NOT NULL,
+    departure_date TIMESTAMP NOT NULL,
     max_passengers INT CHECK (max_passengers >= 1),
     hours INT CHECK (hours >= 0),
     is_active BOOLEAN DEFAULT TRUE,
@@ -108,10 +112,24 @@ VALUES
 ('user2@drexel.edu', '$argon2id$v=19$m=65536,t=3,p=4$bLpTjx5IaE5EGA9KHU4Nvw$s/aIOYq6Yffk7IU2SacPfbBkk7xGUtPnWmMfuQJ03TE', 'User Two', '555-987-6543', TRUE);
 
 -- ✅ Insert a minimal trip (created by User One)
-INSERT INTO trips (created_by, source, destination, source_radius, destination_radius, mode_of_transport, departure_time, departure_date, max_passengers, hours)
-VALUES (
+INSERT INTO trips (
+    created_by, 
+    source, destination, 
+    source_latitude, source_longitude, 
+    destination_latitude, destination_longitude, 
+    source_radius, destination_radius, 
+    mode_of_transport, departure_time, departure_date, 
+    max_passengers, hours, 
+    is_active, created_at
+) VALUES (
     (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
-    'Drexel University', 'Philadelphia', 5, 5, 'Car', '2025-03-01 08:00:00', '2025-03-01', 4, 2
+    'Drexel University', 'Philadelphia City Hall',
+    39.9566127, -75.1899441,
+    39.952583, -75.165222,
+    5, 5,
+    'Car', '2025-03-01 08:00:00', '2025-03-01',
+    4, 2,
+    TRUE, CURRENT_TIMESTAMP
 );
 
 -- ✅ Add User One (trip creator) as a member of the trip

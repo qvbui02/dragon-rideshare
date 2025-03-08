@@ -23,11 +23,14 @@ router.post("/", authenticateToken, async (req: Request, res: Response) => {
         } else {
             res.status(500).json({ error: "Failed to add ride" });
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
-        res.status(500).json({ error: "Error adding ride" });
+        if (error.message.includes("Geocoding failed")) {
+            res.status(400).json({ error: error.message }); // e.g., "Geocoding failed for address..."
+        } else {
+            res.status(500).json({ error: "Error adding ride" });
+        }
     }
 });
 
 export default router;
-

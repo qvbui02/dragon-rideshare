@@ -71,12 +71,27 @@ const AddRide: React.FC = () => {
 
       if (response.status === 201) {
         setSuccess("Ride added successfully!");
+        setFormData({ // Reset form after success
+          source: "",
+          destination: "",
+          source_radius: "",
+          destination_radius: "",
+          mode_of_transport: "",
+          departure_time: currentTime,
+          departure_date: today,
+          max_passengers: "1",
+          hours: "",
+        });
       } else {
         setError("Failed to add ride. Please try again.");
       }
     } catch (err: any) {
       console.error(err);
-      setError("An error occurred while adding the ride.");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error); // Display "Geocoding failed for address..." or other errors
+      } else {
+        setError("An error occurred while adding the ride.");
+      }
     }
   };
 
