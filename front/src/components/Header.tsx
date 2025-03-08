@@ -52,6 +52,25 @@ const Header: React.FC = () => {
 
         {isAuthenticated ? (
           <>
+            <Button color="inherit" component={Link} to="/rides">
+              Trips
+            </Button>
+            <Button color="inherit" component={Link} to="/chatgroup">
+              My Trips
+            </Button>
+            <Button color="inherit" component={Link} to="/addtrip">
+              Create Trip
+            </Button>
+            <Button color="inherit" component={Link} to="/showmember">
+              Historic Travelers
+            </Button>
+
+            {isAdmin && (
+              <Button color="inherit" component={Link} to="/admin">
+                Admin Panel
+              </Button>
+            )}
+
             {user && (
               <Typography
                 variant="body1"
@@ -59,25 +78,6 @@ const Header: React.FC = () => {
               >
                 {user.full_name}
               </Typography>
-            )}
-
-            <Button color="inherit" component={Link} to="/rides">
-              Trips
-            </Button>
-            <Button color="inherit" component={Link} to="/showmember">
-              Historic Travelers
-            </Button>
-            <Button color="inherit" component={Link} to="/addtrip">
-              Create Trip
-            </Button>
-            <Button color="inherit" component={Link} to="/chatgroup">
-              My Trip
-            </Button>
-
-            {isAdmin && (
-              <Button color="inherit" component={Link} to="/admin">
-                Admin Panel
-              </Button>
             )}
 
             <Button color="inherit" onClick={handleLogout}>

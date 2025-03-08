@@ -146,6 +146,92 @@ VALUES (
     (SELECT user_id FROM users WHERE email = 'user2@drexel.edu')
 );
 
+
+-- Insert 5 more sample trips (created by User One)
+INSERT INTO trips (
+    created_by, 
+    source, destination, 
+    source_latitude, source_longitude, 
+    destination_latitude, destination_longitude, 
+    source_radius, destination_radius, 
+    mode_of_transport, departure_time, departure_date, 
+    max_passengers, hours, 
+    is_active, created_at
+) VALUES 
+-- Trip 2
+(
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
+    'Drexel University', '30th Street Station',
+    39.9566127, -75.1899441,
+    39.955929, -75.181923,
+    5, 5,
+    'Taxi', '2025-03-02 10:00:00', '2025-03-02',
+    3, 1,
+    TRUE, CURRENT_TIMESTAMP
+),
+-- Trip 3
+(
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
+    'Philadelphia Museum of Art', 'Rittenhouse Square',
+    39.965571, -75.180966,
+    39.949506, -75.171389,
+    5, 5,
+    'Car', '2025-03-03 14:00:00', '2025-03-03',
+    4, 1,
+    TRUE, CURRENT_TIMESTAMP
+),
+-- Trip 4
+(
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
+    'Liberty Bell', 'Reading Terminal Market',
+    39.949606, -75.150282,
+    39.953308, -75.159171,
+    5, 5,
+    'Other', '2025-03-04 09:30:00', '2025-03-04',
+    2, 1,
+    TRUE, CURRENT_TIMESTAMP
+),
+-- Trip 5
+(
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
+    'South Street', 'Penn''s Landing',
+    39.941665, -75.148987,
+    39.944485, -75.141796,
+    5, 5,
+    'Car', '2025-03-05 16:00:00', '2025-03-05',
+    5, 2,
+    TRUE, CURRENT_TIMESTAMP
+),
+-- Trip 6
+(
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu'),
+    'Drexel University', 'Philadelphia Zoo',
+    39.9566127, -75.1899441,
+    39.971985, -75.195398,
+    5, 5,
+    'Taxi', '2025-03-06 11:00:00', '2025-03-06',
+    3, 2,
+    TRUE, CURRENT_TIMESTAMP
+);
+
+-- Add User One (trip creator) as a member of all new trips
+INSERT INTO trip_members (trip_id, user_id)
+SELECT 
+    trip_id,
+    (SELECT user_id FROM users WHERE email = 'user1@drexel.edu')
+FROM trips 
+WHERE created_by = (SELECT user_id FROM users WHERE email = 'user1@drexel.edu')
+AND trip_id > (SELECT trip_id FROM trips WHERE created_by = (SELECT user_id FROM users WHERE email = 'user1@drexel.edu') LIMIT 1);
+
+-- Add User Two as a member of all new trips
+INSERT INTO trip_members (trip_id, user_id)
+SELECT 
+    trip_id,
+    (SELECT user_id FROM users WHERE email = 'user2@drexel.edu')
+FROM trips 
+WHERE created_by = (SELECT user_id FROM users WHERE email = 'user1@drexel.edu')
+AND trip_id > (SELECT trip_id FROM trips WHERE created_by = (SELECT user_id FROM users WHERE email = 'user1@drexel.edu') LIMIT 1);
+
 -- ✅ Insert a sample report where User Two reports User One
 INSERT INTO reports (reported_by, reported_user, trip_id, reason, status)
 VALUES (

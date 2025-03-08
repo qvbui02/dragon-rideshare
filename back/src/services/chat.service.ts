@@ -22,25 +22,28 @@ export async function saveMessage(req: AuthenticatedRequest, res: Response, db: 
     }
 };
 
-export async function getGroupChat(req: AuthenticatedRequest, res: Response, db: any) {
-    const sender_id = req.user?.id
-    if (!sender_id) {
-        return res.status(400).json({ error: "User is not authenticated" });
-    }
-
+export const getGroupChat = async (req: AuthenticatedRequest, res: Response, db: any) => {
     try {
-        const group_chats = await db.all(
-            `SELECT t.trip_id, 
-                    (SELECT COUNT(*) FROM trip_members WHERE trip_members.trip_id = t.trip_id) AS members,
-                    (SELECT message FROM chat_messages WHERE chat_messages.trip_id = t.trip_id ORDER BY sent_at DESC LIMIT 1) AS lastMessage
-             FROM trip_members tm
-             JOIN trips t ON tm.trip_id = t.trip_id
-             WHERE tm.user_id = ?`, [sender_id]);
-        
-        return res.status(200).json({ group_chats });
+        const user_id = req.user?.id // Ensure user authentication
+
+        const query = `
+            SELECT 
+                t.trip_id, 
+                t.source, 
+                t.destination, 
+                COUNT(tm.user_id) AS members,
+                (SELECT message FROM chat_messages WHERE trip_id = t.trip_id ORDER BY sent_at DESC LIMIT 1) AS lastMessage
+            FROM trips t
+            JOIN trip_members tm ON t.trip_id = tm.trip_id
+            WHERE tm.user_id = ?
+            GROUP BY t.trip_id, t.source, t.destination
+        `;
+
+        const groups = await db.all(query, [user_id]);
+        return res.status(200).json({ group_chats: groups });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
+        console.error("Error fetching group chats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

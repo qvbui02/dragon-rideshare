@@ -5,6 +5,8 @@ import axios from "axios";
 
 interface Group {
     trip_id: string;
+    source: string;
+    destination: string;
     members: number;
     lastMessage: string;
 }
@@ -21,6 +23,8 @@ const GroupChatWidgets: React.FC = () => {
                 const formattedGroups = response.data.group_chats.map((group: any) => ({
                     ...group,
                     trip_id: String(group.trip_id),
+                    source: group.source || "Unknown",
+                    destination: group.destination || "Unknown",
                 }));
 
                 setGroups(formattedGroups);
@@ -57,6 +61,12 @@ const GroupChatWidgets: React.FC = () => {
                                 <Card sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 2 }}>
                                     <CardContent>
                                         <Typography variant="h6">Trip #{group.trip_id}</Typography>
+                                        <Typography variant="body1">
+                                            <strong>From:</strong> {group.source}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>To:</strong> {group.destination}
+                                        </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             {group.members} members
                                         </Typography>
