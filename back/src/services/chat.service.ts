@@ -31,12 +31,10 @@ export const getGroupChat = async (req: AuthenticatedRequest, res: Response, db:
                 t.trip_id, 
                 t.source, 
                 t.destination, 
-                COUNT(tm.user_id) AS members,
+                (SELECT COUNT(*) FROM trip_members WHERE trip_id = t.trip_id) AS members,
                 (SELECT message FROM chat_messages WHERE trip_id = t.trip_id ORDER BY sent_at DESC LIMIT 1) AS lastMessage
             FROM trips t
-            JOIN trip_members tm ON t.trip_id = tm.trip_id
-            WHERE tm.user_id = ?
-            GROUP BY t.trip_id, t.source, t.destination
+            WHERE EXISTS (SELECT 1 FROM trip_members tm WHERE tm.trip_id = t.trip_id AND tm.user_id = ?);
         `;
 
         const groups = await db.all(query, [user_id]);

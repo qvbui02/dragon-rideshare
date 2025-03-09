@@ -54,7 +54,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.get("/api/config/google-maps-key", authenticateToken, (req, res) => {
-  res.json({ apiKey: process.env.GOOGLE_MAPS_DISPLAY_API_KEY });
+  res.json({ apiKey: process.env.GOOGLE_MAPS_API_KEY });
 });
 app.use("/api/chat", chatRoutes);
 

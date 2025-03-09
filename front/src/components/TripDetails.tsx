@@ -23,7 +23,7 @@ const TripDetails: React.FC = () => {
   const [googleMapsApiKey, setGoogleMapsApiKey] = useState<string | null>(null);
   const [openSourceInfo, setOpenSourceInfo] = useState(false);
   const [openDestinationInfo, setOpenDestinationInfo] = useState(false);
-  const MAP_ID = "8c90d3b7dbe6f116";
+  const MAP_ID = "353455d8cbf876f";
 
   useEffect(() => {
     if (!trip_id) return;
