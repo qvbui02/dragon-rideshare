@@ -73,15 +73,14 @@ const Chat: React.FC = () => {
 
     return (
         <Container maxWidth="sm">
-            <Paper elevation={3} sx={{ padding: 3, marginTop: 4 }}>
+            <Paper elevation={3} sx={{ padding: 3, marginTop: 4, minHeight:"800px" }}>
                 <Typography variant="h5" align="center" gutterBottom>
                     Chat Room {trip_id}
                 </Typography>
 
-                {/* Chat Messages */}
                 <Box
                     sx={{
-                        height: 300,
+                        height: 700,
                         overflowY: "auto",
                         padding: 2,
                         borderRadius: 1,
@@ -91,7 +90,7 @@ const Chat: React.FC = () => {
                 >
                     {messages.length > 0 ? (
                         messages.map((msg, index) => (
-                            <Typography key={index} variant="body2" sx={{ marginBottom: 1 }}>
+                            <Typography key={index} variant="body1" sx={{ marginBottom: 1 }}>
                                 <strong>{msg.username}:</strong> {msg.message}
                             </Typography>
                         ))
@@ -102,7 +101,6 @@ const Chat: React.FC = () => {
                     )}
                 </Box>
 
-                {/* Input and Send Button */}
                 <Box sx={{ display: "flex", gap: 1 }}>
                     <TextField
                         fullWidth
@@ -110,7 +108,7 @@ const Chat: React.FC = () => {
                         variant="outlined"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={handleKeyDown} // Send message on Enter key
+                        onKeyDown={handleKeyDown}
                     />
                     <Button
                         variant="contained"

@@ -32,7 +32,7 @@ export async function getTripDetails(req: AuthenticatedRequest, res: Response, d
 
     try {
         const trip_details = await db.get(
-            `SELECT t.trip_id, t.source, t.destination, t.departure_time, t.departure_date, t.created_at
+            `SELECT t.trip_id, t.source, t.destination, t.departure_time, t.departure_date, t.created_at, t.source_latitude, t.source_longitude, t.destination_latitude, t.destination_longitude
             FROM trips t
             WHERE t.trip_id = ?`, [trip_id]
         );
