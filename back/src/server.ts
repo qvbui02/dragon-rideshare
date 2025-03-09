@@ -18,6 +18,7 @@ import { initChatServer } from "./websocket/chat.js";
 import http from "http";
 import cors from "cors";
 import reportRoutes from "./routes/report.routes.js";
+import { authenticateToken } from "./middlewares/auth.middleware.js";
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 // Load environment variables
@@ -30,7 +31,20 @@ const io = new Server(server, { cors: { origin: "*" } });
 initChatServer(io);
 app.use(express.json());
 app.use(cookieParser());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https://maps.gstatic.com", "https://maps.googleapis.com", "*"],
+        scriptSrc: ["'self'", "https://maps.googleapis.com", "https://cdnjs.cloudflare.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        connectSrc: ["'self'", "https://maps.googleapis.com"],
+      },
+    },
+  })
+);
 app.use(cors());
 
 // Rate limiting middleware
@@ -39,6 +53,9 @@ const limiter = rateLimit({
   max: parseInt(process.env.RATE_LIMIT_MAX || "100", 10),
 });
 app.use(limiter);
+app.get("/api/config/google-maps-key", authenticateToken, (req, res) => {
+  res.json({ apiKey: process.env.GOOGLE_MAPS_DISPLAY_API_KEY });
+});
 app.use("/api/chat", chatRoutes);
 
 // Serve frontend files
