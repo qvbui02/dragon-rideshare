@@ -70,7 +70,7 @@ const AddRide: React.FC = () => {
       });
 
       if (response.status === 201) {
-        setSuccess("Ride added successfully!");
+        setSuccess("Trip added successfully!");
         setFormData({ // Reset form after success
           source: "",
           destination: "",
@@ -83,14 +83,14 @@ const AddRide: React.FC = () => {
           hours: "",
         });
       } else {
-        setError("Failed to add ride. Please try again.");
+        setError("Failed to add trip. Please try again.");
       }
     } catch (err: any) {
       console.error(err);
       if (err.response?.data?.error) {
         setError(err.response.data.error); // Display "Geocoding failed for address..." or other errors
       } else {
-        setError("An error occurred while adding the ride.");
+        setError("An error occurred while adding the trip.");
       }
     }
   };
@@ -159,7 +159,7 @@ const AddRide: React.FC = () => {
               >
                 <MenuItem value="Car">Car</MenuItem>
                 <MenuItem value="Taxi">Taxi</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
+                <MenuItem value="Tandem Bike">Tandem Bike</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={6}>
