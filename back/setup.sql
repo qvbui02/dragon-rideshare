@@ -42,7 +42,7 @@ CREATE TABLE trips (
     destination_longitude DECIMAL(11, 8),
     source_radius INT CHECK (source_radius >= 0),
     destination_radius INT CHECK (destination_radius >= 0),
-    mode_of_transport VARCHAR(50) CHECK (mode_of_transport IN ('Car', 'Taxi', 'Other')),
+    mode_of_transport VARCHAR(50) CHECK (mode_of_transport IN ('Car', 'Taxi', 'Tandem Bike')),
     departure_time DATETIME NOT NULL,
     departure_date TIMESTAMP NOT NULL,
     max_passengers INT CHECK (max_passengers >= 1),
@@ -187,7 +187,7 @@ INSERT INTO trips (
     39.949606, -75.150282,
     39.953308, -75.159171,
     5, 5,
-    'Other', '2025-03-04 09:30:00', '2025-03-04',
+    'Tandem Bike', '2025-03-04 09:30:00', '2025-03-04',
     2, 1,
     TRUE, CURRENT_TIMESTAMP
 ),
